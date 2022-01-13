@@ -35,4 +35,14 @@ export class ApiService {
       });
     },
   };
+
+  public Horarios = {
+    gen: (params?: any) => {
+      const param: any = {};
+      if (params) param.params = params;
+      return this.http.get<any>(`${environment.apiUri}/horarios`, {
+        params: param,
+      });
+    },
+  };
 }

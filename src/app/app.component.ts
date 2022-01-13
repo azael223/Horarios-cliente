@@ -1,10 +1,19 @@
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
+import { ScheduleComponent } from './components/schedule/schedule.component';
 import { Grupo } from './interfaces/Grupo.interface';
 import { Maestro } from './interfaces/Maestro.interface';
 import { Turno } from './interfaces/Turno.interface';
 import { ApiService } from './services/api.service';
+import * as moment from 'moment';
+import { CalendarEvent } from 'angular-calendar';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +23,8 @@ import { ApiService } from './services/api.service';
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   title = 'Horarios';
   constructor(private _api: ApiService) {}
+
+  @ViewChild('horario') horario!: ScheduleComponent;
 
   private onDestroy$ = new Subject<any>();
 
@@ -66,6 +77,11 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.onDestroy$))
       .subscribe((id) => {
         this.getGrupos(id);
+        const turno = this.turnos.find((turno) => id == turno.id);
+        this.horario.inicio = Number(turno?.hora_inicio.split(':')[0]);
+        this.horario.fin = Number(turno?.hora_fin.split(':')[0]);
+        this.horario.events = [];
+
         this.maestros = [];
         this.grupos = [];
       });
@@ -75,8 +91,36 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.grupoControl.valueChanges
       .pipe(takeUntil(this.onDestroy$))
       .subscribe((id) => {
-        this.getProfesores();
-        this.maestros = [];
+        this.maestros = this.grupos.find(({ id }) => id)?.maestros || [];
+        this.horario.events = [];
       });
+  }
+
+  generarHorario() {
+    this._api.Horarios.gen()
+      .pipe(takeUntil(this.onDestroy$))
+      .subscribe((horario: any) => {
+        let events: any[] = [];
+        horario.forEach((h: any, index: number) => {
+          events = [...events, ...this.eventMap(h, index + 1)];
+        });
+        this.horario.events = events;
+      });
+  }
+
+  eventMap(horario: any[], index: number): CalendarEvent[] {
+    return horario.map((evento) => ({
+      start: moment()
+        .startOf('week')
+        .add(index, 'days')
+        .set('hour', evento.hora_inicio)
+        .toDate(),
+      title: `${evento.materia} - ${evento.maestro}`,
+      end: moment()
+        .startOf('week')
+        .add(index, 'days')
+        .set('hour', evento.hora_fin)
+        .toDate(),
+    }));
   }
 }

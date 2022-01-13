@@ -28,11 +28,12 @@
 
         <h1>Prioridades de profesores</h1>
         <app-priority [profesores]="maestros"></app-priority>
+        <button class="w-100 mt-4" mat-raised-button color="primary" (click)="generarHorario()">Generar</button>
       </div>
     </div>
     <div class="col-12 col-md-8 col-lg-9">
       <mat-card>
-        <app-schedule></app-schedule>
+        <app-schedule #horario></app-schedule>
       </mat-card>
     </div>
   </div>

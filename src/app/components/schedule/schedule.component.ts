@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CalendarEvent } from 'angular-calendar';
 import { addDays, addHours, endOfMonth, startOfDay, subDays } from 'date-fns';
 import { Subject } from 'rxjs';
@@ -16,6 +16,9 @@ export class ScheduleComponent implements OnInit {
   viewDate: Date = new Date();
 
   refresh = new Subject<void>();
+
+  @ViewChild('inicio') inicio!: number;
+  @ViewChild('fin') fin!: number;
 
   colors: any = {
     red: {

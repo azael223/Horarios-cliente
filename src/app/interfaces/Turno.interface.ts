@@ -1,6 +1,6 @@
 export interface Turno {
   id: number;
   nombre: string;
-  hora_inicio: Date;
-  hora_fin: Date;
+  hora_inicio: string;
+  hora_fin: string;
 }
