@@ -31,7 +31,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   public turnos: Turno[] = [];
   public grupos: Grupo[] = [];
   public maestros: Maestro[] = [];
-
+  public variacion = 1;
   public turnoControl = new FormControl(null, [Validators.required]);
   public grupoControl = new FormControl(null, [Validators.required]);
 
@@ -78,8 +78,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe((id) => {
         this.getGrupos(id);
         const turno = this.turnos.find((turno) => id == turno.id);
-        this.horario.inicio = Number(turno?.hora_inicio.split(':')[0]);
-        this.horario.fin = Number(turno?.hora_fin.split(':')[0]);
+        this.horario.inicio = turno?.hora_inicio || 0;
+        this.horario.fin = turno?.hora_fin || 0;
         this.horario.events = [];
 
         this.maestros = [];
@@ -97,9 +97,16 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   generarHorario() {
-    this._api.Horarios.gen()
+    this._api.Horarios.gen(
+      this.maestros.map(({ id }) => id),
+      this.turnoControl.value,
+      this.grupoControl.value,
+      this.variacion
+    )
       .pipe(takeUntil(this.onDestroy$))
       .subscribe((horario: any) => {
+        this.variacion++;
+        console.log(horario);
         let events: any[] = [];
         horario.forEach((h: any, index: number) => {
           events = [...events, ...this.eventMap(h, index + 1)];

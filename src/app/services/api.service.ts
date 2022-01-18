@@ -37,11 +37,12 @@ export class ApiService {
   };
 
   public Horarios = {
-    gen: (params?: any) => {
-      const param: any = {};
-      if (params) param.params = params;
-      return this.http.get<any>(`${environment.apiUri}/horarios`, {
-        params: param,
+    gen: (prioridades:number[], turno:number, grupo:number, variacion:number) => {
+      return this.http.post<any>(`${environment.apiUri}/horarios`, {
+        prioridades,
+        turno,
+        grupo,
+        variacion
       });
     },
   };
